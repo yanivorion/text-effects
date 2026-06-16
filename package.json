@@ -1,0 +1,22 @@
+{
+  "name": "text-effects",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run fonts:build && vite",
+    "build": "npm run fonts:build && vite build",
+    "preview": "vite preview",
+    "fonts:build": "node scripts/generate-font-faces.mjs",
+    "wix-presets:build": "node scripts/generate-wix-presets.mjs"
+  },
+  "dependencies": {
+    "html-to-image": "^1.11.13",
+    "jszip": "^3.10.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
+    "vite": "^6.2.0"
+  }
+}
