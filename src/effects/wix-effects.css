@@ -291,19 +291,57 @@
   z-index: -2;
 }
 
-/* ── striped (Blossom, Level Up) ── */
+/* ── striped — Wix TextEffectsStriped (container + text on same node) ── */
 .wfx-striped {
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--text-effects-color-1) 0px,
-    var(--text-effects-color-1) 8px,
-    var(--text-effects-color-2) 8px,
-    var(--text-effects-color-2) 16px
+  --color1: var(--text-effects-color-1);
+  --color2: var(--text-effects-color-2);
+  /* Wix: stripe-size spx = (config / 1280) × scaling-factor; tile ∝ font-size */
+  --stripe-tile: calc(var(--stripe-size, 7) * 1em / var(--wfx-font-size, 80));
+  --animation: wfx-stripes;
+  --default-animation-duration: 1s;
+  --animation-duration: calc(calc((var(--inner-animation-speed, 1) - 1) * -0.1 + 2) * 1s);
+
+  display: block;
+  background: linear-gradient(
+    calc(var(--stripe-angle, 0deg) + 90deg),
+    var(--color1) 25%,
+    var(--color2) 25%,
+    var(--color2) 50%,
+    var(--color1) 50%,
+    var(--color1) 75%,
+    var(--color2) 75%,
+    var(--color2)
   );
-  background-clip: text;
+  background-size: var(--stripe-tile) var(--stripe-tile);
+  background-position: 0 0;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  padding: 0 0.1em;
+  margin: 0 -0.1em;
+  animation: var(--disable-inner-animation, var(--animation))
+    var(--animation-duration, var(--default-animation-duration)) linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wfx-striped {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes wfx-stripes {
+  100% {
+    background-position:
+      calc(
+        1 / cos(mod(var(--stripe-angle, 0deg), 90deg)) * var(--stripe-tile) *
+          cos(var(--stripe-angle, 0deg))
+      )
+      calc(
+        1 / cos(mod(var(--stripe-angle, 0deg), 90deg)) * var(--stripe-tile) *
+          sin(var(--stripe-angle, 0deg))
+      );
+  }
 }
 
 /* ── retro (Celebrate) ── */

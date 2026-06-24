@@ -108,9 +108,16 @@ function Glitch({ text, preset }) {
 }
 
 function Striped({ text, preset }) {
+  const style = {
+    ...fontStyle(preset),
+    '--wfx-font-size': preset.fontSize,
+  };
+  if (style['--disable-inner-animation'] !== 'none') {
+    delete style['--disable-inner-animation'];
+  }
   return (
     <div className="wfx">
-      <span className="wfx-striped" style={fontStyle(preset)}>{text}</span>
+      <span className="wfx-striped" style={style}>{text}</span>
     </div>
   );
 }

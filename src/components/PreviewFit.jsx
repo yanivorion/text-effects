@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 
-/** Scale preview to fit card — export target inside stays full size (no transform). */
+/** Scale the fixed 146.66×60 export frame to fit the card preview area. */
 export function PreviewFit({ children }) {
   const outerRef = useRef(null);
   const innerRef = useRef(null);
@@ -10,17 +10,14 @@ export function PreviewFit({ children }) {
     const inner = innerRef.current;
     if (!outer || !inner) return;
 
-/** Extra space for glows/filters that extend past scrollWidth/Height. */
-const FILTER_BLEED = 40;
-
     const fit = () => {
       inner.style.transform = 'none';
       const maxW = outer.clientWidth;
-      const maxH = outer.clientHeight || 220;
-      const sw = inner.scrollWidth + FILTER_BLEED;
-      const sh = inner.scrollHeight + FILTER_BLEED;
-      const scale = Math.min(1, maxW / sw, maxH / sh);
-      inner.style.transform = scale < 0.995 ? `scale(${scale})` : 'none';
+      const maxH = outer.clientHeight;
+      const sw = inner.offsetWidth;
+      const sh = inner.offsetHeight;
+      const scale = Math.min(maxW / sw, maxH / sh);
+      inner.style.transform = `scale(${scale})`;
       inner.style.transformOrigin = 'center center';
     };
 

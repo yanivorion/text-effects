@@ -1,11 +1,11 @@
 import JSZip from 'jszip';
 import { domNodeToPngBlob, downloadBlob } from './exportPng.js';
 
-export async function exportAllAsZip(entries, targetWidth, baseName = 'text-effects') {
+export async function exportAllAsZip(entries, scale, baseName = 'text-effects') {
   const zip = new JSZip();
   for (const { name, el } of entries) {
     if (!el) continue;
-    const blob = await domNodeToPngBlob(el, targetWidth);
+    const blob = await domNodeToPngBlob(el, scale);
     zip.file(`${slug(name)}.png`, blob);
   }
   const zipBlob = await zip.generateAsync({ type: 'blob' });

@@ -1,19 +1,16 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { effects } from './effects/index.jsx';
 import { domNodeToPngBlob, downloadBlob } from './utils/exportPng.js';
+import { domNodeToGifBlob } from './utils/exportGif.js';
 import { exportAllAsZip } from './utils/exportZip.js';
+import { isPresetAnimated } from './utils/effectAnimation.js';
 import { PreviewFit } from './components/PreviewFit.jsx';
-
-const SIZES = [
-  { label: '512 px', value: 512 },
-  { label: '1024 px', value: 1024 },
-  { label: '2048 px', value: 2048 },
-  { label: '4096 px', value: 4096 },
-];
+import { ExportFrame } from './components/ExportFrame.jsx';
+import { SCALE_OPTIONS } from './constants/frame.js';
 
 export default function App() {
   const [text, setText] = useState('');
-  const [width, setWidth] = useState(1024);
+  const [scale, setScale] = useState(4);
   const [busy, setBusy] = useState(false);
   const rootRef = useRef(null);
 
@@ -22,17 +19,23 @@ export default function App() {
 
   const displayText = (effect) => (text.trim() || effect.defaultText || effect.name);
 
-  const downloadOne = useCallback(async (effect) => {
+  const downloadOne = useCallback(async (effect, format = 'png') => {
     const el = findExportNode(effect.id);
     if (!el) return;
     setBusy(true);
     try {
-      const blob = await domNodeToPngBlob(el, width);
-      downloadBlob(blob, `${effect.id}-${slugify(displayText(effect))}.png`);
+      const name = `${effect.id}-${slugify(displayText(effect))}`;
+      if (format === 'gif') {
+        const blob = await domNodeToGifBlob(el, scale, effect.id);
+        downloadBlob(blob, `${name}.gif`);
+      } else {
+        const blob = await domNodeToPngBlob(el, scale);
+        downloadBlob(blob, `${name}.png`);
+      }
     } finally {
       setBusy(false);
     }
-  }, [width, text]);
+  }, [scale, text]);
 
   const downloadAll = useCallback(async () => {
     setBusy(true);
@@ -40,11 +43,11 @@ export default function App() {
       const entries = effects
         .map((e) => ({ name: e.id, el: findExportNode(e.id) }))
         .filter((e) => e.el);
-      await exportAllAsZip(entries, width, `text-effects-${slugify(text || 'presets')}`);
+      await exportAllAsZip(entries, scale, `text-effects-${slugify(text || 'presets')}`);
     } finally {
       setBusy(false);
     }
-  }, [width, text]);
+  }, [scale, text]);
 
   return (
     <div className="app" ref={rootRef}>
@@ -56,9 +59,9 @@ export default function App() {
           placeholder="Custom text (empty = preset default)…"
         />
         <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 14, color: 'var(--muted)' }}>
-          Size
-          <select value={width} onChange={(e) => setWidth(Number(e.target.value))}>
-            {SIZES.map((s) => (
+          Quality
+          <select value={scale} onChange={(e) => setScale(Number(e.target.value))}>
+            {SCALE_OPTIONS.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>
@@ -77,14 +80,23 @@ export default function App() {
             <div className="card" key={effect.id}>
               <div className="card-canvas">
                 <PreviewFit>
-                  <Comp text={label} idPrefix={effect.id} />
+                  <ExportFrame>
+                    <Comp text={label} idPrefix={effect.id} />
+                  </ExportFrame>
                 </PreviewFit>
               </div>
               <div className="card-footer">
                 <div className="card-title">{effect.name}</div>
-                <button className="btn" disabled={busy} onClick={() => downloadOne(effect)}>
-                  Download PNG
-                </button>
+                <div className="card-actions">
+                  <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'png')}>
+                    PNG
+                  </button>
+                  {isPresetAnimated(effect.id) && (
+                    <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'gif')}>
+                      GIF
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );

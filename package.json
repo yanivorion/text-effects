@@ -10,6 +10,7 @@
     "wix-presets:build": "node scripts/generate-wix-presets.mjs"
   },
   "dependencies": {
+    "gifenc": "^1.0.3",
     "html-to-image": "^1.11.13",
     "jszip": "^3.10.1",
     "react": "^19.0.0",
