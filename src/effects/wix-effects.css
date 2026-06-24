@@ -87,7 +87,7 @@
     0 0 calc(10rem * var(--shadow-blur) * var(--text-blur-factor)) var(--neon-text-color);
 }
 
-/* ── glass (ASTRO, Bouncy, Cloudy, Glaze, Refined, Jolt) — Wix _container_zgkb1_5 ── */
+/* ── glass (Turbo, Glaze, ASTRO, …) — Wix TextEffectsGlass.module.scss ── */
 .wfx-glass-root {
   display: inline-block;
   filter: var(--shadow-blur, none) drop-shadow(0 0 0 var(--shadow-color, transparent));
@@ -95,20 +95,21 @@
 
 .wfx-glass-unit {
   --unit-size: 0.005em;
+  --shadow-blur-unit-size: 0.6em;
   --scaled-border: calc(var(--border-width) * var(--unit-size));
   --color1: var(--text-color);
   --color2: var(--border-color);
   display: inline-grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
   text-align: center;
   width: fit-content;
-  color: #fff;
-  lighting-color: rgb(204, 204, 204);
-  text-shadow: 0 0 0.7px, 0 0 1.1px, 0 0 1.1px;
-}
-
-.wfx-glass-unit.wfx-glass--italic {
-  transform: skewX(-14deg);
-  transform-origin: left center;
+  lighting-color: #ccc;
+  -webkit-font-smoothing: antialiased;
+  text-shadow:
+    0 0 0.7px,
+    0 0 1.1px,
+    0 0 1.1px;
 }
 
 .wfx-glass-unit .wfx-glass-text,
@@ -120,11 +121,15 @@
 
 .wfx-glass-unit::before,
 .wfx-glass-unit::after {
-  lighting-color: rgb(204, 204, 204);
+  content: attr(data-text);
   content: attr(data-text) / '';
+  lighting-color: #ccc;
+  pointer-events: none;
 }
 
 .wfx-glass-unit::before {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
   -webkit-text-stroke: var(--scaled-border) var(--color2);
 }
 
@@ -135,7 +140,8 @@
 
 .wfx-glass-unit .wfx-glass-text {
   display: block;
-  color: inherit;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 /* ── sticker (Apex, Space, Fluffy, Night) ── */

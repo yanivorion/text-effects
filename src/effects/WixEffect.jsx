@@ -38,19 +38,20 @@ function NeonSign({ text, preset }) {
 }
 
 function Glass({ text, preset }) {
-  const style = fontStyle(preset);
-  const italic = preset.fontStyle === 'italic';
+  const style = {
+    ...fontStyle(preset),
+    '--stroke': preset.vars['--stroke'] || preset.vars['--border-color'],
+    '--stroke-width': preset.vars['--stroke-width'] || `${preset.vars['--border-width'] || 10}px`,
+    '--border-color': preset.vars['--border-color'] || preset.vars['--stroke'],
+    '--border-width': preset.vars['--border-width'] || '10',
+  };
   const rootStyle = {
     '--shadow-blur': preset.vars['--shadow-blur'] || 'url(#glass-shadow_blur:2)',
     '--shadow-color': preset.vars['--shadow-color'] || 'transparent',
   };
   return (
     <div className="wfx-glass-root" style={rootStyle}>
-      <span
-        className={`wfx-glass-unit${italic ? ' wfx-glass--italic' : ''}`}
-        data-text={text}
-        style={style}
-      >
+      <span className="wfx-glass-unit" data-text={text} style={style}>
         <span className="wfx-glass-text">{text}</span>
       </span>
     </div>
@@ -200,7 +201,7 @@ const RENDERERS = {
   bauhaus: Bauhaus,
 };
 
-const ITALIC_SKEW_TYPES = new Set(['outline-out', 'glass']);
+const ITALIC_SKEW_TYPES = new Set(['outline-out']);
 
 export function WixEffect({ presetId, text }) {
   const preset = presets.find((p) => p.id === presetId);
@@ -216,7 +217,7 @@ export function WixEffect({ presetId, text }) {
 export const effects = presets.map((p) => ({
   id: p.id,
   name: p.name,
-  defaultText: p.panelText || p.defaultText,
+  defaultText: p.defaultText || p.panelText,
   Component: ({ text, idPrefix }) => (
     <div data-effect-id={idPrefix || p.id}>
       <WixEffect presetId={p.id} text={text} />

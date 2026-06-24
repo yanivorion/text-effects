@@ -36,6 +36,7 @@ const PANEL_TEXT = {
   'sticker-fluffy': 'FLUFFY',
   'glitch-squish': 'SQUISH',
   'glass-glaze': 'GLAZE',
+  'glass-turbo': 'TURBO',
   'sticker-night': 'NIGHT',
   'letterpress-change': 'CHANGE',
 };
@@ -48,6 +49,7 @@ const FONT_SIZE = {
   'outline-out-outline': 120,
   'outline-out-hyper': 120,
   'glass-astro': 105,
+  'glass-turbo': 55,
   'press-start-2p': 40,
   gaude: 50,
   'kelly slab': 60,

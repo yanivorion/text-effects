@@ -3,7 +3,7 @@ import React from 'react';
 /** Ported from Wix TextEffectsGlass viewer filters */
 function GlassShadowBlur({ level }) {
   return (
-    <filter id={`glass-shadow_blur:${level}`}>
+    <filter id={`glass-shadow_blur:${level}`} colorInterpolationFilters="sRGB">
       <feGaussianBlur stdDeviation={level} in="SourceAlpha" />
       <feOffset result="fO" dy="5" dx="5" />
       <feComposite in2="fO" operator="xor" in="SourceGraphic" />
@@ -14,7 +14,7 @@ function GlassShadowBlur({ level }) {
 export function GlassFilters() {
   return (
     <>
-      <filter id="lightA3">
+      <filter id="lightA3" colorInterpolationFilters="sRGB">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="B" />
         <feSpecularLighting in="B" specularExponent="128" result="S">
           <feDistantLight azimuth="225" elevation="70" />
