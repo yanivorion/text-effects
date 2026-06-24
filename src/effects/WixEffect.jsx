@@ -1,4 +1,4 @@
-import React from 'react';
+import { retroStyleExtras } from '../utils/retroShadow.js';
 import { presets } from './wix-presets.js';
 import './wix-effects.css';
 
@@ -123,15 +123,24 @@ function Striped({ text, preset }) {
 }
 
 function Retro({ text, preset }) {
-  const style = fontStyle(preset);
-  const count = Number(preset.vars['--layer-count'] || 4);
+  const layerCount = Number(preset.vars['--layer-count'] || 4);
+  const disableAnim = preset.vars['--disable-inner-animation'];
+  const style = {
+    ...fontStyle(preset),
+    ...retroStyleExtras(preset),
+  };
+  if (disableAnim === 'initial') {
+    style['--disable-inner-animation'] = 'initial';
+  } else if (disableAnim !== 'none') {
+    delete style['--disable-inner-animation'];
+  }
+  const animDisabled = disableAnim === 'initial' || disableAnim === 'none';
+  const animClass =
+    !animDisabled && layerCount >= 3 ? `wfx-retro--anim-${Math.min(layerCount, 5)}` : '';
   return (
     <div className="wfx">
-      <span className="wfx-retro-unit" style={style}>
+      <span className={`wfx-retro-unit ${animClass}`.trim()} data-text={text} style={style}>
         <span className="wfx-retro-text">{text}</span>
-        {count > 1 && <span className="wfx-retro-layer wfx-retro-l1" aria-hidden="true">{text}</span>}
-        {count > 2 && <span className="wfx-retro-layer wfx-retro-l2" aria-hidden="true">{text}</span>}
-        {count > 3 && <span className="wfx-retro-layer wfx-retro-l3" aria-hidden="true">{text}</span>}
       </span>
     </div>
   );

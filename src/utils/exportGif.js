@@ -1,6 +1,6 @@
 import { GIFEncoder, quantize, applyPalette } from 'gifenc';
 import { createExportStage, renderStageToCanvas, waitFrames } from './exportStage.js';
-import { stripeAnimationDurationMs } from './effectAnimation.js';
+import { animationDurationMs } from './effectAnimation.js';
 import { presets } from '../effects/wix-presets.js';
 
 const FRAME_COUNT = 30;
@@ -19,7 +19,7 @@ function encodeCanvasFrames(canvases, delayMs) {
 }
 
 function findAnimatedElement(host) {
-  return host.querySelector('.wfx-striped');
+  return host.querySelector('.wfx-striped, .wfx-retro-unit.wfx-retro--anim-3, .wfx-retro-unit.wfx-retro--anim-4, .wfx-retro-unit.wfx-retro--anim-5');
 }
 
 /** DOM node → animated GIF (one loop) at 146.66×60, `scale`× resolution. */
@@ -29,7 +29,7 @@ export async function domNodeToGifBlob(node, scale = 4, presetId) {
   await document.fonts.ready;
 
   const preset = presets.find((p) => p.id === presetId);
-  const durationMs = stripeAnimationDurationMs(preset);
+  const durationMs = animationDurationMs(preset);
   const delayMs = Math.max(20, Math.round(durationMs / FRAME_COUNT));
 
   const { host } = await createExportStage(node);

@@ -344,28 +344,150 @@
   }
 }
 
-/* ── retro (Celebrate) ── */
+/* ── retro (Celebrate, Gentle) — Wix TextEffectsRetro.module.scss ── */
+@property --color-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
+@property --color-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
+@property --color-3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
+@property --color-4 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
 .wfx-retro-unit {
-  --unit-size: 0.004em;
   isolation: isolate;
-  display: inline-grid;
-  color: var(--text-effects-color-1);
-  filter: drop-shadow(
-    calc(cos(var(--bevel-angle)) * var(--bevel-depth) * var(--unit-size))
-    calc(sin(var(--bevel-angle)) * var(--bevel-depth) * var(--unit-size))
-    calc(var(--shadow-blur) * 1px)
-    var(--text-effects-color-2)
+  position: relative;
+  --default-animation-duration: 1s;
+  --animation-duration: calc(
+    calc((var(--inner-animation-speed, 1) - 1) * -0.2578947368 + 5) * 1s
   );
+  --size-unit: 0.005em;
+  --x-offset-factor: calc(cos(calc(90deg + var(--bevel-angle, 0deg))) / sqrt(2));
+  --y-offset-factor: calc(sin(calc(90deg + var(--bevel-angle, 0deg))) / sqrt(2));
+  --color-1: var(--text-effects-color-2);
+  --color-2: var(--text-effects-color-3);
+  --color-3: var(--text-effects-color-4);
+  --color-4: var(--text-effects-color-5);
+  color: var(--text-effects-color-1);
+  display: inline-grid;
 }
 
 .wfx-retro-unit .wfx-retro-text,
-.wfx-retro-unit .wfx-retro-layer {
+.wfx-retro-unit::before {
   grid-area: 1 / 1 / -1 / -1;
+  font-style: inherit;
 }
 
-.wfx-retro-l1 { color: var(--text-effects-color-2); transform: translate(calc(cos(var(--bevel-angle)) * var(--bevel-depth) * var(--unit-size) * -0.25), calc(sin(var(--bevel-angle)) * var(--bevel-depth) * var(--unit-size) * -0.25)); z-index: -1; }
-.wfx-retro-l2 { color: var(--text-effects-color-3); transform: translate(calc(cos(var(--bevel-angle)) * var(--bevel-depth) * var(--unit-size) * -0.5), calc(sin(var(--bevel-angle)) * var(--bevel-depth) * var(--unit-size) * -0.5)); z-index: -2; }
-.wfx-retro-l3 { color: var(--text-effects-color-4); transform: translate(calc(cos(var(--bevel-angle)) * var(--bevel-depth) * var(--unit-size) * -0.75), calc(sin(var(--bevel-angle)) * var(--bevel-depth) * var(--unit-size) * -0.75)); z-index: -3; }
+.wfx-retro-text {
+  display: block;
+}
+
+.wfx-retro-unit::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: transparent;
+  text-shadow: var(--retro-text-shadow);
+  filter: blur(calc(var(--size-unit) * var(--shadow-blur, 0)));
+  pointer-events: none;
+}
+
+.wfx-retro-unit.wfx-retro--anim-3,
+.wfx-retro-unit.wfx-retro--anim-4,
+.wfx-retro-unit.wfx-retro--anim-5 {
+  animation: var(--disable-inner-animation, var(--animation, wfx-change-colors-4))
+    var(--animation-duration, var(--default-animation-duration)) linear 0s infinite;
+}
+
+.wfx-retro-unit.wfx-retro--anim-3 {
+  --animation: wfx-change-colors-3;
+}
+
+.wfx-retro-unit.wfx-retro--anim-4 {
+  --animation: wfx-change-colors-4;
+}
+
+.wfx-retro-unit.wfx-retro--anim-5 {
+  --animation: wfx-change-colors-5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wfx-retro-unit {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes wfx-change-colors-4 {
+  0% {
+    --color-1: var(--text-effects-color-2);
+    --color-2: var(--text-effects-color-3);
+    --color-3: var(--text-effects-color-4);
+  }
+  33% {
+    --color-1: var(--text-effects-color-4);
+    --color-2: var(--text-effects-color-2);
+    --color-3: var(--text-effects-color-3);
+  }
+  66% {
+    --color-1: var(--text-effects-color-3);
+    --color-2: var(--text-effects-color-4);
+    --color-3: var(--text-effects-color-2);
+  }
+}
+
+@keyframes wfx-change-colors-3 {
+  0% {
+    --color-1: var(--text-effects-color-2);
+    --color-2: var(--text-effects-color-3);
+  }
+  50% {
+    --color-1: var(--text-effects-color-3);
+    --color-2: var(--text-effects-color-2);
+  }
+}
+
+@keyframes wfx-change-colors-5 {
+  0% {
+    --color-1: var(--text-effects-color-2);
+    --color-2: var(--text-effects-color-3);
+    --color-3: var(--text-effects-color-4);
+    --color-4: var(--text-effects-color-5);
+  }
+  25% {
+    --color-1: var(--text-effects-color-5);
+    --color-2: var(--text-effects-color-2);
+    --color-3: var(--text-effects-color-3);
+    --color-4: var(--text-effects-color-4);
+  }
+  50% {
+    --color-1: var(--text-effects-color-4);
+    --color-2: var(--text-effects-color-5);
+    --color-3: var(--text-effects-color-2);
+    --color-4: var(--text-effects-color-3);
+  }
+  75% {
+    --color-1: var(--text-effects-color-3);
+    --color-2: var(--text-effects-color-4);
+    --color-3: var(--text-effects-color-5);
+    --color-4: var(--text-effects-color-2);
+  }
+}
 
 /* ── noisy (Organic, Blurry, Hollow, Breeze) ── */
 .wfx-noisy {
