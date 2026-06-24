@@ -1,12 +1,23 @@
 import { presets } from '../effects/wix-presets.js';
 
-/** Striped + retro presets with inner CSS animation. */
+/** Whether the preset actually runs a CSS loop in the preview (GIF export eligible). */
 export function isPresetAnimated(presetId) {
   const preset = presets.find((p) => p.id === presetId);
   if (!preset) return false;
+
   const disable = preset.vars['--disable-inner-animation'];
-  if (disable === 'none' || disable === 'initial') return false;
-  return preset.type === 'striped' || preset.type === 'retro';
+
+  // Striped: Wix stores `initial` but we drop it at render time → animation runs.
+  if (preset.type === 'striped') {
+    return disable !== 'none';
+  }
+
+  // Retro: `initial` and `none` both mean static (Celebrate, Gentle).
+  if (preset.type === 'retro') {
+    return disable !== 'none' && disable !== 'initial';
+  }
+
+  return false;
 }
 
 export function stripeAnimationDurationMs(preset) {
