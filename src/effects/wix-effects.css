@@ -104,12 +104,13 @@
   grid-template-rows: 1fr;
   text-align: center;
   width: fit-content;
+  color: var(--text-color);
   lighting-color: #ccc;
   -webkit-font-smoothing: antialiased;
   text-shadow:
-    0 0 0.7px,
-    0 0 1.1px,
-    0 0 1.1px;
+    0 0 0.7px currentColor,
+    0 0 1.1px currentColor,
+    0 0 1.1px currentColor;
 }
 
 .wfx-glass-unit .wfx-glass-text,

@@ -17,7 +17,8 @@ export default function App() {
   const findExportNode = (id) =>
     rootRef.current?.querySelector(`[data-effect-id="${id}"]`);
 
-  const displayText = (effect) => (text.trim() || effect.defaultText || effect.name);
+  const displayText = (effect) =>
+    text.trim() || effect.panelText || effect.defaultText || effect.name;
 
   const downloadOne = useCallback(async (effect, format = 'png') => {
     const el = findExportNode(effect.id);

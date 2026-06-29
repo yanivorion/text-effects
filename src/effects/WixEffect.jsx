@@ -218,6 +218,7 @@ export const effects = presets.map((p) => ({
   id: p.id,
   name: p.name,
   defaultText: p.defaultText || p.panelText,
+  panelText: p.panelText || p.defaultText,
   Component: ({ text, idPrefix }) => (
     <div data-effect-id={idPrefix || p.id}>
       <WixEffect presetId={p.id} text={text} />
