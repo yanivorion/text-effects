@@ -30,7 +30,7 @@ export default function App() {
         const blob = await domNodeToGifBlob(el, scale, effect.id);
         downloadBlob(blob, `${name}.gif`);
       } else {
-        const blob = await domNodeToPngBlob(el, scale);
+        const blob = await domNodeToPngBlob(el, scale, effect.id);
         downloadBlob(blob, `${name}.png`);
       }
     } finally {

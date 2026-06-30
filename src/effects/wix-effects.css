@@ -91,6 +91,7 @@
 .wfx-glass-root {
   display: inline-block;
   filter: var(--shadow-blur, none) drop-shadow(0 0 0 var(--shadow-color, transparent));
+  -webkit-font-smoothing: antialiased;
 }
 
 .wfx-glass-unit {
@@ -302,8 +303,6 @@
 .wfx-striped {
   --color1: var(--text-effects-color-1);
   --color2: var(--text-effects-color-2);
-  /* Wix: stripe-size spx = (config / 1280) × scaling-factor; tile ∝ font-size */
-  --stripe-tile: calc(var(--stripe-size, 7) * 1em / var(--wfx-font-size, 80));
   --animation: wfx-stripes;
   --default-animation-duration: 1s;
   --animation-duration: calc(calc((var(--inner-animation-speed, 1) - 1) * -0.1 + 2) * 1s);
@@ -319,7 +318,7 @@
     var(--color2) 75%,
     var(--color2)
   );
-  background-size: var(--stripe-tile) var(--stripe-tile);
+  background-size: var(--stripe-size) var(--stripe-size);
   background-position: 0 0;
   -webkit-background-clip: text;
   background-clip: text;
@@ -329,6 +328,8 @@
   margin: 0 -0.1em;
   animation: var(--disable-inner-animation, var(--animation))
     var(--animation-duration, var(--default-animation-duration)) linear infinite;
+  /* Wix thumbnails show the mid-animation frame (half color / half color). */
+  animation-delay: calc(var(--animation-duration, var(--default-animation-duration)) * -0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -339,13 +340,12 @@
 
 @keyframes wfx-stripes {
   100% {
-    background-position:
-      calc(
-        1 / cos(mod(var(--stripe-angle, 0deg), 90deg)) * var(--stripe-tile) *
+    background-position: calc(
+        1 / cos(mod(var(--stripe-angle, 0deg), 90deg)) * var(--stripe-size) *
           cos(var(--stripe-angle, 0deg))
       )
       calc(
-        1 / cos(mod(var(--stripe-angle, 0deg), 90deg)) * var(--stripe-tile) *
+        1 / cos(mod(var(--stripe-angle, 0deg), 90deg)) * var(--stripe-size) *
           sin(var(--stripe-angle, 0deg))
       );
   }

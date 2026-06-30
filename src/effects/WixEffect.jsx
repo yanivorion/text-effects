@@ -109,9 +109,11 @@ function Glitch({ text, preset }) {
 }
 
 function Striped({ text, preset }) {
+  const rawStripe = preset.vars['--stripe-size'] ?? '7';
+  const stripePx = String(rawStripe).endsWith('px') ? rawStripe : `${rawStripe}px`;
   const style = {
     ...fontStyle(preset),
-    '--wfx-font-size': preset.fontSize,
+    '--stripe-size': stripePx,
   };
   if (style['--disable-inner-animation'] !== 'none') {
     delete style['--disable-inner-animation'];
