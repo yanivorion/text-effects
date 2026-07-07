@@ -3,8 +3,8 @@
  * GitHub Pages dist assembler:
  * - latest build at dist/ root
  * - archived build at dist/versions/{shortSha}/
- * - preserves prior version folders from the live site
- * - updates versions/manifest.json (only lists archived builds)
+ * - each archive must include fonts/ (shared bundle copied when missing)
+ * - updates versions/manifest.json (only complete archives)
  */
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -57,28 +57,19 @@ async function fetchLiveManifest() {
   }
 }
 
-async function preserveLiveArchive(targetVersionsDir, entry) {
-  const dest = path.join(targetVersionsDir, entry.shortSha);
-  if (fs.existsSync(path.join(dest, 'index.html'))) return true;
+function isValidArchive(dir) {
+  return fs.existsSync(path.join(dir, 'index.html'))
+    && fs.existsSync(path.join(dir, 'fonts', 'wix-fonts.css'));
+}
 
-  fs.mkdirSync(dest, { recursive: true });
-  try {
-    run(
-      `curl -sfL "${LIVE_BASE}/versions/${entry.shortSha}/index.html" -o "${path.join(dest, 'index.html')}"`,
-    );
-    const html = fs.readFileSync(path.join(dest, 'index.html'), 'utf8');
-    const assets = [...html.matchAll(/\/text-effects\/versions\/[^"']+\/assets\/[^"']+/g)].map((m) => m[0]);
-    for (const assetPath of new Set(assets)) {
-      const rel = assetPath.split(`/versions/${entry.shortSha}/`)[1];
-      if (!rel) continue;
-      const out = path.join(dest, rel);
-      fs.mkdirSync(path.dirname(out), { recursive: true });
-      run(`curl -sfL "${LIVE_ORIGIN}${assetPath}" -o "${out}"`);
-    }
-    return true;
-  } catch {
-    fs.rmSync(dest, { recursive: true, force: true });
-    return false;
+function ensureArchiveFonts(versionsDir, fontsSrc) {
+  if (!fs.existsSync(fontsSrc)) return;
+  for (const name of fs.readdirSync(versionsDir)) {
+    const archiveDir = path.join(versionsDir, name);
+    if (!fs.statSync(archiveDir).isDirectory()) continue;
+    if (fs.existsSync(path.join(archiveDir, 'fonts', 'wix-fonts.css'))) continue;
+    console.log(`[pages] copy fonts → versions/${name}/`);
+    copyDir(fontsSrc, path.join(archiveDir, 'fonts'));
   }
 }
 
@@ -94,7 +85,7 @@ async function buildArchive(shortSha, destDir) {
 function listArchived(versionsDir) {
   if (!fs.existsSync(versionsDir)) return [];
   return fs.readdirSync(versionsDir, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && fs.existsSync(path.join(versionsDir, d.name, 'index.html')))
+    .filter((d) => d.isDirectory() && isValidArchive(path.join(versionsDir, d.name)))
     .map((d) => d.name);
 }
 
@@ -114,13 +105,11 @@ async function main() {
 
   for (const entry of merged.versions) {
     if (entry.shortSha === shortSha) continue;
-    await preserveLiveArchive(versionsDir, entry);
-  }
-
-  for (const entry of merged.versions) {
-    if (entry.shortSha === shortSha) continue;
     const dest = path.join(versionsDir, entry.shortSha);
-    if (fs.existsSync(path.join(dest, 'index.html'))) continue;
+    if (isValidArchive(dest)) continue;
+    if (fs.existsSync(dest)) {
+      fs.rmSync(dest, { recursive: true, force: true });
+    }
     console.log(`[pages] backfill archive ${entry.shortSha}`);
     try {
       run(`git checkout --force ${entry.sha}`);
@@ -142,10 +131,14 @@ async function main() {
 
   await buildArchive(shortSha, path.join(versionsDir, shortSha));
 
+  const latestFonts = path.join(staging, 'fonts');
+  ensureArchiveFonts(versionsDir, latestFonts);
+
   const archived = new Set(listArchived(versionsDir));
   const current = { sha: headSha, shortSha, label, date: new Date().toISOString() };
   const versions = [current, ...merged.versions.filter((v) => archived.has(v.shortSha) && v.shortSha !== shortSha)]
     .filter((v, i, arr) => arr.findIndex((x) => x.shortSha === v.shortSha) === i)
+    .filter((v) => v.shortSha === shortSha || archived.has(v.shortSha))
     .slice(0, 20);
 
   const manifest = { versions };

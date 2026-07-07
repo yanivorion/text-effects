@@ -20,22 +20,24 @@ export function versionHref(key) {
   return `${origin}${SITE_PATH}/versions/${key}/`;
 }
 
+function manifestUrl() {
+  return `${siteOrigin()}${SITE_PATH}/versions/manifest.json`;
+}
+
 export function CommitSwitcher() {
   const [manifest, setManifest] = useState(null);
   const activeKey = getActiveVersionKey();
 
   useEffect(() => {
-    const url = `${import.meta.env.BASE_URL}versions/manifest.json`;
-    fetch(url, { cache: 'no-store' })
+    fetch(manifestUrl(), { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => setManifest(data))
       .catch(() => setManifest(null));
   }, []);
 
   const options = useMemo(() => {
-    const fromManifest = manifest?.versions ?? [];
     const list = [{ key: 'latest', shortSha: 'latest', label: 'Latest deploy' }];
-    for (const entry of fromManifest) {
+    for (const entry of manifest?.versions ?? []) {
       if (entry.shortSha === 'latest') continue;
       if (!list.some((o) => o.key === entry.shortSha)) {
         list.push({ key: entry.shortSha, ...entry });
@@ -53,6 +55,7 @@ export function CommitSwitcher() {
 
   const activeIndex = options.findIndex((o) => o.key === activeKey);
   const current = options[activeIndex >= 0 ? activeIndex : 0];
+  const onUnknownArchive = activeKey !== 'latest' && activeIndex < 0;
 
   const go = (key) => {
     if (key === activeKey) return;
@@ -81,13 +84,18 @@ export function CommitSwitcher() {
       <label className="toolbar-field commit-switcher-select">
         <span className="toolbar-field-label">Build</span>
         <select
-          value={activeKey}
+          value={onUnknownArchive ? 'latest' : activeKey}
           onChange={(e) => go(e.target.value)}
-          title={current?.label || 'Switch deployed commit'}
+          title={onUnknownArchive ? `Unknown build ${activeKey} — switch to latest` : (current?.label || 'Switch deployed commit')}
         >
+          {onUnknownArchive && (
+            <option value={activeKey} disabled>
+              {activeKey} (missing)
+            </option>
+          )}
           {options.map((opt) => (
             <option key={opt.key} value={opt.key}>
-              {opt.key === 'latest' ? 'latest' : opt.shortSha} — {opt.label}
+              {opt.key === 'latest' ? `latest (${BUILD_SHORT_SHA})` : opt.shortSha} — {opt.label}
             </option>
           ))}
         </select>
@@ -102,6 +110,11 @@ export function CommitSwitcher() {
       >
         ›
       </button>
+      {onUnknownArchive && (
+        <button type="button" className="btn primary" onClick={() => go('latest')} title="This archived build is incomplete">
+          Fix
+        </button>
+      )}
     </div>
   );
 }
