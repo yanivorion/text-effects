@@ -1,3 +1,5 @@
+import { applyPresetOverrides } from './presetOverrides.js';
+
 /** Merge manual tuner overrides onto a catalog preset (non-destructive). */
 export function applyPresetOverrides(preset, overrides) {
   if (!preset || !overrides || Object.keys(overrides).length === 0) return preset;
@@ -17,12 +19,20 @@ export function applyPresetOverrides(preset, overrides) {
   const vars = { ...preset.vars };
 
   for (const [key, value] of Object.entries(overrides)) {
+    if (key === '__animation__') continue;
     if (value === undefined || value === '') continue;
     if (typographyKeys.has(key)) {
       top[key] = key === 'fontSize' ? Number(value) : value;
     } else if (key.startsWith('--')) {
       vars[key] = String(value);
     }
+  }
+
+  const anim = overrides.__animation__;
+  if (anim === 'none') {
+    vars['--disable-inner-animation'] = 'none';
+  } else if (anim === 'on') {
+    delete vars['--disable-inner-animation'];
   }
 
   return { ...preset, ...top, vars };

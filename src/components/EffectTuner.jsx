@@ -45,6 +45,9 @@ function FieldControl({ field, value, onChange }) {
   }
 
   if (field.type === 'select') {
+    const options = field.options.map((opt) =>
+      typeof opt === 'string' ? { value: opt, label: opt } : opt,
+    );
     return (
       <label className="tuner-field" htmlFor={id}>
         <span className="tuner-label">{field.label}</span>
@@ -54,8 +57,8 @@ function FieldControl({ field, value, onChange }) {
           value={value}
           onChange={(e) => onChange(field, e.target.value)}
         >
-          {field.options.map((opt) => (
-            <option key={opt} value={opt}>{opt}</option>
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
       </label>
@@ -177,6 +180,17 @@ export function EffectTuner({
             />
           ))}
         </section>
+
+        {fields.animation && (
+          <section className="tuner-section">
+            <h3 className="tuner-section-title">Animation</h3>
+            <FieldControl
+              field={fields.animation}
+              value={readFieldValue(preset, overrides, fields.animation)}
+              onChange={handleField}
+            />
+          </section>
+        )}
 
         {fields.vars.length > 0 && (
           <section className="tuner-section">

@@ -1,6 +1,6 @@
 import { GIFEncoder, quantize, applyPalette } from 'gifenc';
 import { createExportStage, renderStageToCanvas, waitFrames } from './exportStage.js';
-import { animationDurationMs } from './effectAnimation.js';
+import { animationDurationMs } from './animationControl.js';
 import { presets } from '../effects/wix-presets.js';
 
 const FRAME_COUNT = 30;

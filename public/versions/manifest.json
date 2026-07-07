@@ -1,0 +1,34 @@
+{
+  "versions": [
+    {
+      "sha": "d7dc649db5580713bee55167b3b2b159731d93e6",
+      "shortSha": "d7dc649",
+      "label": "Glass parity + property tuner",
+      "date": "2026-07-07T08:41:54.000Z"
+    },
+    {
+      "sha": "dd1c6f948accc4e2361bb5b31aa5af42d8fea699",
+      "shortSha": "dd1c6f9",
+      "label": "Striped PNG midpoint frame",
+      "date": "2026-06-30T09:45:34.000Z"
+    },
+    {
+      "sha": "f9ceb9417f1b474840af4b0376f69271cc463219",
+      "shortSha": "f9ceb94",
+      "label": "Remix / Refined / Moment parity",
+      "date": "2026-06-29T11:49:10.000Z"
+    },
+    {
+      "sha": "370fd92f6e40dd9e58d8839683f80b704a586478",
+      "shortSha": "370fd92",
+      "label": "Jun 24 — fixed-frame export + GIF",
+      "date": "2026-06-24T09:07:09.000Z"
+    },
+    {
+      "sha": "b133af3c80c0f4a2785b52a76252c620e8160bc5",
+      "shortSha": "b133af3",
+      "label": "Jun 16 — initial GitHub Pages ship",
+      "date": "2026-06-16T14:50:11.000Z"
+    }
+  ]
+}

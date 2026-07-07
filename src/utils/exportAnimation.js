@@ -1,15 +1,22 @@
 import { waitFrames } from './exportStage.js';
-import { animationDurationMs, isPresetAnimated } from './effectAnimation.js';
+import {
+  animationDurationMs,
+  isPresetAnimated,
+} from './animationControl.js';
+import { applyPresetOverrides } from './presetOverrides.js';
 import { presets } from '../effects/wix-presets.js';
 
 const ANIMATED_SELECTOR =
   '.wfx-striped, .wfx-retro-unit.wfx-retro--anim-3, .wfx-retro-unit.wfx-retro--anim-4, .wfx-retro-unit.wfx-retro--anim-5';
 
 /** Pause striped/retro effects at 50% — Wix PNG thumbnails use the mid-animation frame. */
-export async function seekAnimatedToMidpoint(host, presetId) {
-  if (!presetId || !isPresetAnimated(presetId)) return;
+export async function seekAnimatedToMidpoint(host, presetId, overrides) {
+  if (!presetId || !isPresetAnimated(presetId, overrides)) return;
 
-  const preset = presets.find((p) => p.id === presetId);
+  const preset = applyPresetOverrides(
+    presets.find((p) => p.id === presetId),
+    overrides,
+  );
   const durationMs = animationDurationMs(preset);
   const midpoint = durationMs / 2;
 

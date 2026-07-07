@@ -1,13 +1,23 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { effects } from './effects/index.jsx';
+import { presets } from './effects/wix-presets.js';
 import { domNodeToPngBlob, downloadBlob } from './utils/exportPng.js';
 import { domNodeToGifBlob } from './utils/exportGif.js';
 import { exportAllAsZip } from './utils/exportZip.js';
-import { isPresetAnimated } from './utils/effectAnimation.js';
+import { isPresetAnimated, presetSupportsAnimation } from './utils/animationControl.js';
 import { PreviewFit } from './components/PreviewFit.jsx';
 import { ExportFrame } from './components/ExportFrame.jsx';
 import { EffectTuner } from './components/EffectTuner.jsx';
+import { CommitSwitcher } from './components/CommitSwitcher.jsx';
 import { SCALE_OPTIONS } from './constants/frame.js';
+
+function resolveEffectiveOverrides(effectId, overridesById, globalMotion) {
+  const overrides = overridesById[effectId];
+  if (globalMotion === 'preset') return overrides;
+  const preset = presets.find((p) => p.id === effectId);
+  if (!presetSupportsAnimation(preset)) return overrides;
+  return { ...overrides, __animation__: globalMotion === 'off' ? 'none' : 'on' };
+}
 
 export default function App() {
   const [text, setText] = useState('');
@@ -15,6 +25,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [tuneId, setTuneId] = useState(null);
   const [overridesById, setOverridesById] = useState({});
+  const [globalMotion, setGlobalMotion] = useState('preset');
   const rootRef = useRef(null);
 
   const findExportNode = (id) =>
@@ -24,10 +35,21 @@ export default function App() {
     text.trim() || effect.panelText || effect.defaultText || effect.name;
 
   const setOverride = useCallback((presetId, key, value) => {
-    setOverridesById((prev) => ({
-      ...prev,
-      [presetId]: { ...(prev[presetId] || {}), [key]: value },
-    }));
+    setOverridesById((prev) => {
+      const current = { ...(prev[presetId] || {}) };
+      if (value === undefined || value === '' || (key === '__animation__' && value === 'preset')) {
+        delete current[key];
+      } else {
+        current[key] = value;
+      }
+      const next = { ...prev };
+      if (Object.keys(current).length === 0) {
+        delete next[presetId];
+      } else {
+        next[presetId] = current;
+      }
+      return next;
+    });
   }, []);
 
   const resetOverrides = useCallback((presetId) => {
@@ -41,6 +63,7 @@ export default function App() {
   const downloadOne = useCallback(async (effect, format = 'png') => {
     const el = findExportNode(effect.id);
     if (!el) return;
+    const overrides = resolveEffectiveOverrides(effect.id, overridesById, globalMotion);
     setBusy(true);
     try {
       const name = `${effect.id}-${slugify(displayText(effect))}`;
@@ -48,13 +71,13 @@ export default function App() {
         const blob = await domNodeToGifBlob(el, scale, effect.id);
         downloadBlob(blob, `${name}.gif`);
       } else {
-        const blob = await domNodeToPngBlob(el, scale, effect.id);
+        const blob = await domNodeToPngBlob(el, scale, effect.id, overrides);
         downloadBlob(blob, `${name}.png`);
       }
     } finally {
       setBusy(false);
     }
-  }, [scale, text]);
+  }, [scale, text, overridesById, globalMotion]);
 
   const downloadAll = useCallback(async () => {
     setBusy(true);
@@ -79,14 +102,23 @@ export default function App() {
           onChange={(e) => setText(e.target.value)}
           placeholder="Custom text (empty = preset default)…"
         />
-        <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 14, color: 'var(--muted)' }}>
-          Quality
+        <label className="toolbar-field">
+          <span className="toolbar-field-label">Motion</span>
+          <select value={globalMotion} onChange={(e) => setGlobalMotion(e.target.value)}>
+            <option value="preset">Preset default</option>
+            <option value="off">None (static)</option>
+            <option value="on">All animated</option>
+          </select>
+        </label>
+        <label className="toolbar-field">
+          <span className="toolbar-field-label">Quality</span>
           <select value={scale} onChange={(e) => setScale(Number(e.target.value))}>
             {SCALE_OPTIONS.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>
         </label>
+        <CommitSwitcher />
         <div className="spacer" />
         <button className="btn primary" onClick={downloadAll} disabled={busy}>
           {busy ? 'Exporting…' : 'Download All (ZIP)'}
@@ -98,8 +130,8 @@ export default function App() {
           {effects.map((effect) => {
             const Comp = effect.Component;
             const label = displayText(effect);
-            const overrides = overridesById[effect.id];
-            const isTuned = Boolean(overrides && Object.keys(overrides).length);
+            const overrides = resolveEffectiveOverrides(effect.id, overridesById, globalMotion);
+            const isTuned = Boolean(overridesById[effect.id] && Object.keys(overridesById[effect.id]).length);
             return (
               <div
                 className={`card${tuneId === effect.id ? ' card--active' : ''}`}
@@ -128,7 +160,7 @@ export default function App() {
                     <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'png')}>
                       PNG
                     </button>
-                    {isPresetAnimated(effect.id) && (
+                    {isPresetAnimated(effect.id, overrides, globalMotion) && (
                       <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'gif')}>
                         GIF
                       </button>

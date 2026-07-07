@@ -8,7 +8,7 @@ function canvasToBlob(canvas) {
 }
 
 /** DOM node → transparent PNG at 146.66×60 aspect, `scale`× resolution. */
-export async function domNodeToPngBlob(node, scale = 4, presetId) {
+export async function domNodeToPngBlob(node, scale = 4, presetId, overrides) {
   if (!node) throw new Error('domNodeToPngBlob: missing node');
 
   await document.fonts.ready;
@@ -16,7 +16,7 @@ export async function domNodeToPngBlob(node, scale = 4, presetId) {
   const { host } = await createExportStage(node);
 
   try {
-    await seekAnimatedToMidpoint(host, presetId);
+    await seekAnimatedToMidpoint(host, presetId, overrides);
     const canvas = await renderStageToCanvas(host, scale);
     return canvasToBlob(canvas);
   } finally {

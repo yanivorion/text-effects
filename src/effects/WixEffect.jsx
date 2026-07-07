@@ -1,4 +1,5 @@
 import { retroStyleExtras } from '../utils/retroShadow.js';
+import { applyAnimationStyle } from '../utils/animationControl.js';
 import { FIT_SCALE_VAR } from '../utils/fitEffectToFrame.js';
 import { applyPresetOverrides } from '../utils/presetOverrides.js';
 import { presets } from './wix-presets.js';
@@ -127,9 +128,7 @@ function Striped({ text, preset }) {
     ...fontStyle(preset),
     '--stripe-size': stripePx,
   };
-  if (style['--disable-inner-animation'] !== 'none') {
-    delete style['--disable-inner-animation'];
-  }
+  applyAnimationStyle(style);
   return (
     <div className="wfx">
       <span className="wfx-striped" style={style}>{text}</span>
@@ -139,17 +138,11 @@ function Striped({ text, preset }) {
 
 function Retro({ text, preset }) {
   const layerCount = Number(preset.vars['--layer-count'] || 4);
-  const disableAnim = preset.vars['--disable-inner-animation'];
   const style = {
     ...fontStyle(preset),
     ...retroStyleExtras(preset),
   };
-  if (disableAnim === 'initial') {
-    style['--disable-inner-animation'] = 'initial';
-  } else if (disableAnim !== 'none') {
-    delete style['--disable-inner-animation'];
-  }
-  const animDisabled = disableAnim === 'initial' || disableAnim === 'none';
+  const animDisabled = applyAnimationStyle(style);
   const animClass =
     !animDisabled && layerCount >= 3 ? `wfx-retro--anim-${Math.min(layerCount, 5)}` : '';
   return (

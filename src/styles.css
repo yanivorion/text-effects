@@ -67,6 +67,52 @@ body {
   background: white;
 }
 
+.toolbar-field {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.toolbar-field-label {
+  white-space: nowrap;
+}
+
+.build-badge {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #eff6ff;
+}
+.build-badge:hover {
+  background: #dbeafe;
+}
+
+.commit-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.commit-switcher-select select {
+  min-width: 220px;
+  max-width: 320px;
+}
+
+.commit-switcher-btn {
+  min-width: 34px;
+  justify-content: center;
+  padding-inline: 10px;
+  font-size: 18px;
+  line-height: 1;
+}
+
 .toolbar .spacer { flex: 1; }
 
 .btn {

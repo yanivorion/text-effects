@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
+import { buildInfoPlugin } from './vite.build-info.js';
 
 /** Drop playground / catalog assets if they still exist in public/. */
 function pruneDistPlugin() {
@@ -20,8 +21,10 @@ function pruneDistPlugin() {
   };
 }
 
+const appBase = process.env.APP_BASE || '/text-effects/';
+
 export default defineConfig({
-  base: '/text-effects/',
-  plugins: [react(), pruneDistPlugin()],
+  base: appBase,
+  plugins: [react(), buildInfoPlugin(), pruneDistPlugin()],
   server: { port: 5173, open: true },
 });

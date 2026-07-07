@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npm run fonts:build && vite",
     "build": "npm run fonts:build && vite build",
+    "build:pages": "node scripts/assemble-pages-dist.mjs",
     "preview": "vite preview",
     "fonts:build": "node scripts/generate-font-faces.mjs",
     "wix-presets:build": "node scripts/generate-wix-presets.mjs"

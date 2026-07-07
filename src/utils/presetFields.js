@@ -1,4 +1,5 @@
 import { glassShadowLevel, glassShadowUrl } from './presetOverrides.js';
+import { presetSupportsAnimation } from './animationControl.js';
 
 const TYPOGRAPHY_FIELDS = [
   { key: 'fontSize', label: 'Font size', type: 'number', min: 8, max: 200, step: 1 },
@@ -66,17 +67,34 @@ function varLabel(key) {
 
 /** Build editable field list for a preset. */
 export function buildPresetFields(preset) {
-  if (!preset) return { typography: [], vars: [] };
+  if (!preset) return { typography: [], animation: null, vars: [] };
 
-  const vars = Object.entries(preset.vars || {}).map(([key, value]) =>
-    inferVarField(key, value),
-  );
+  const vars = Object.entries(preset.vars || {})
+    .filter(([key]) => key !== '--disable-inner-animation')
+    .map(([key, value]) => inferVarField(key, value));
 
-  return { typography: TYPOGRAPHY_FIELDS, vars };
+  const animation = presetSupportsAnimation(preset)
+    ? {
+        key: '__animation__',
+        label: 'Animation',
+        type: 'select',
+        options: [
+          { value: 'preset', label: 'Preset default' },
+          { value: 'none', label: 'None (static)' },
+          { value: 'on', label: 'On (animated)' },
+        ],
+      }
+    : null;
+
+  return { typography: TYPOGRAPHY_FIELDS, animation, vars };
 }
 
 export function readFieldValue(preset, overrides, field) {
   const { key, type } = field;
+  if (key === '__animation__') {
+    if (overrides?.__animation__) return overrides.__animation__;
+    return 'preset';
+  }
   if (overrides?.[key] !== undefined && overrides[key] !== '') {
     if (type === 'glassBlur') return glassShadowLevel(overrides[key]);
     return overrides[key];
