@@ -3,7 +3,7 @@ import { computeFitScaleForRoot } from '../constants/frame.js';
 export const FIT_SCALE_VAR = '--wfx-fit-scale';
 
 /** Effects whose SVG filters break when shrunk via CSS transform:scale. */
-export const FONT_FIT_SELECTOR = '.wfx-glass-root, .wfx-oo-unit';
+export const FONT_FIT_SELECTOR = '.wfx-glass-root';
 
 export function usesFontFit(root) {
   return Boolean(root?.querySelector(FONT_FIT_SELECTOR));
@@ -11,8 +11,9 @@ export function usesFontFit(root) {
 
 /**
  * Fit effect content inside the 146.66×60 frame.
- * Glass / outline-out use --wfx-fit-scale (font-size) instead of transform scale
+ * Glass uses --wfx-fit-scale (font-size) instead of transform scale
  * so feSpecularLighting and glass-shadow filters stay proportional.
+ * Outline-out uses transform scale — font-only fitting blows up its SVG bevel filters.
  */
 export function applyFrameFit(contentEl) {
   if (!contentEl) return 1;
