@@ -3,6 +3,13 @@ import { presets } from '../effects/wix-presets.js';
 import { WixEffect } from '../effects/WixEffect.jsx';
 import { applyPresetOverrides } from '../utils/presetOverrides.js';
 import {
+  colorOpacityPercent,
+  colorPickerHex,
+  formatColor,
+  isEditableColor,
+  parseColor,
+} from '../utils/colorFormat.js';
+import {
   buildPresetFields,
   readFieldValue,
   writeFieldValue,
@@ -10,38 +17,71 @@ import {
 import { PreviewFit } from './PreviewFit.jsx';
 import { ExportFrame } from './ExportFrame.jsx';
 
-function expandHex(color) {
-  const s = String(color).trim();
-  if (/^#[0-9a-f]{3}$/i.test(s)) {
-    return `#${s[1]}${s[1]}${s[2]}${s[2]}${s[3]}${s[3]}`;
-  }
-  return /^#([0-9a-f]{6}|[0-9a-f]{8})$/i.test(s) ? s : '#000000';
+function ColorField({ field, value, onChange }) {
+  const id = `tuner-${field.key}`;
+  const parsed = parseColor(value) ?? { r: 0, g: 0, b: 0, a: 1 };
+  const pickerHex = colorPickerHex(value);
+  const opacity = colorOpacityPercent(value);
+
+  const setRgb = (hex) => {
+    const next = parseColor(hex);
+    if (!next) return;
+    onChange(field, formatColor({ ...next, a: parsed.a }));
+  };
+
+  const setOpacity = (pct) => {
+    onChange(field, formatColor({ ...parsed, a: Number(pct) / 100 }));
+  };
+
+  return (
+    <div className="tuner-field">
+      <span className="tuner-label">{field.label}</span>
+      <div className="tuner-color-row">
+        <input
+          id={id}
+          type="color"
+          value={pickerHex}
+          onChange={(e) => setRgb(e.target.value)}
+        />
+        <input
+          type="text"
+          className="tuner-input"
+          value={value}
+          onChange={(e) => onChange(field, e.target.value)}
+        />
+      </div>
+      <label className="tuner-opacity-row" htmlFor={`${id}-opacity`}>
+        <span className="tuner-opacity-label">Opacity</span>
+        <input
+          id={`${id}-opacity`}
+          type="range"
+          className="tuner-range"
+          min={0}
+          max={100}
+          step={1}
+          value={opacity}
+          onChange={(e) => setOpacity(e.target.value)}
+        />
+        <input
+          type="number"
+          className="tuner-input tuner-input--narrow"
+          min={0}
+          max={100}
+          step={1}
+          value={opacity}
+          onChange={(e) => setOpacity(e.target.value)}
+        />
+        <span className="tuner-opacity-unit">%</span>
+      </label>
+    </div>
+  );
 }
 
 function FieldControl({ field, value, onChange }) {
   const id = `tuner-${field.key}`;
 
-  if (field.type === 'color') {
-    const hex = expandHex(value);
-    return (
-      <label className="tuner-field" htmlFor={id}>
-        <span className="tuner-label">{field.label}</span>
-        <div className="tuner-color-row">
-          <input
-            id={id}
-            type="color"
-            value={hex}
-            onChange={(e) => onChange(field, e.target.value)}
-          />
-          <input
-            type="text"
-            className="tuner-input"
-            value={value}
-            onChange={(e) => onChange(field, e.target.value)}
-          />
-        </div>
-      </label>
-    );
+  if (field.type === 'color' && isEditableColor(value)) {
+    return <ColorField field={field} value={value} onChange={onChange} />;
   }
 
   if (field.type === 'select') {

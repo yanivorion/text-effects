@@ -366,6 +366,24 @@ body {
   background: white;
 }
 
+.tuner-opacity-row {
+  display: grid;
+  grid-template-columns: auto 1fr 56px auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.tuner-opacity-label,
+.tuner-opacity-unit {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tuner-opacity-unit {
+  width: 14px;
+}
+
 .tuner-range {
   width: 100%;
 }
