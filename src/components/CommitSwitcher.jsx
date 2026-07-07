@@ -36,6 +36,7 @@ export function CommitSwitcher() {
     const fromManifest = manifest?.versions ?? [];
     const list = [{ key: 'latest', shortSha: 'latest', label: 'Latest deploy' }];
     for (const entry of fromManifest) {
+      if (entry.shortSha === 'latest') continue;
       if (!list.some((o) => o.key === entry.shortSha)) {
         list.push({ key: entry.shortSha, ...entry });
       }
