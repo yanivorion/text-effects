@@ -7,6 +7,7 @@ import {
   computeFitScale,
   measureFitDimensions,
 } from '../constants/frame.js';
+import { usesFontFit } from './fitEffectToFrame.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -69,7 +70,18 @@ export async function createExportStage(node) {
   await waitFrames(2);
 
   const { width: contentW, height: contentH } = measureFitDimensions(cloned);
-  const fitScale = computeFitScale(contentW, contentH);
+  let fitScale = computeFitScale(contentW, contentH);
+  const fontFit = usesFontFit(cloned) && fitScale < 1;
+
+  if (fontFit) {
+    cloned.style.setProperty('--wfx-fit-scale', String(fitScale));
+    const remeasured = measureFitDimensions(cloned);
+    const second = computeFitScale(remeasured.width, remeasured.height);
+    if (second < 0.999) {
+      fitScale *= second;
+      cloned.style.setProperty('--wfx-fit-scale', String(fitScale));
+    }
+  }
 
   const stage = document.createElement('div');
   stage.style.cssText = [
@@ -87,7 +99,9 @@ export async function createExportStage(node) {
     'position:absolute',
     'left:50%',
     'top:50%',
-    `transform:translate(-50%, -50%) scale(${fitScale})`,
+    fontFit
+      ? 'transform:translate(-50%, -50%)'
+      : `transform:translate(-50%, -50%) scale(${fitScale})`,
     'transform-origin:center center',
     'padding:0',
     'white-space:nowrap',
@@ -98,6 +112,10 @@ export async function createExportStage(node) {
     'margin:0',
     'overflow:visible',
   ].join(';');
+
+  if (fontFit) {
+    cloned.style.setProperty('--wfx-fit-scale', String(fitScale));
+  }
 
   stage.appendChild(cloned);
   host.replaceChildren(stage);

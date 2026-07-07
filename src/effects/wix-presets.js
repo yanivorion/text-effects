@@ -460,6 +460,8 @@ export const presets = [
     "textTransform": "none",
     "textAlign": "center",
     "vars": {
+      "--stroke": "#fff",
+      "--stroke-width": "6px",
       "--border-color": "#fff",
       "--text-color": "#000",
       "--shadow-blur": "url(#glass-shadow_blur:3)",
@@ -1004,6 +1006,8 @@ export const presets = [
     "textTransform": "capitalize",
     "textAlign": "center",
     "vars": {
+      "--stroke": "#000",
+      "--stroke-width": "4px",
       "--border-color": "#000",
       "--text-color": "#000",
       "--shadow-blur": "url(#glass-shadow_blur:2)",

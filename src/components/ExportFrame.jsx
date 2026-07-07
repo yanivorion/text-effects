@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
-import { FRAME_WIDTH, FRAME_HEIGHT, computeFitScaleForRoot } from '../constants/frame.js';
+import { FRAME_WIDTH, FRAME_HEIGHT } from '../constants/frame.js';
+import { applyFrameFit } from '../utils/fitEffectToFrame.js';
 
 /** Fixed 146.66×60 stage — text is scaled to fit (same logic as PNG export). */
 export function ExportFrame({ children }) {
@@ -9,11 +10,7 @@ export function ExportFrame({ children }) {
     const content = contentRef.current;
     if (!content) return;
 
-    const fit = () => {
-      content.style.transform = 'translate(-50%, -50%)';
-      const s = computeFitScaleForRoot(content);
-      content.style.transform = `translate(-50%, -50%) scale(${s})`;
-    };
+    const fit = () => applyFrameFit(content);
 
     fit();
     document.fonts?.ready?.then(fit);

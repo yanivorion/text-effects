@@ -53,7 +53,8 @@
   font-family: "ogg";
   font-style: italic;
   font-weight: 700;
-  src: url("./files/FONTS%2520UPLOAD%2520FOR%2520WWW/All/Ogg%25202.otf") format("opentype");
+  src: url("https://static.parastorage.com/fonts/v2/99d5e6a7-2908-4139-a421-5f5388306d98/v1/ogg.other.woff2") format("woff2"),
+       url("./files/FONTS%2520UPLOAD%2520FOR%2520WWW/All/Ogg%25202.otf") format("opentype");
   font-display: swap;
 }
 
@@ -494,6 +495,22 @@
   font-style: italic;
   font-weight: 700;
   src: url("./files/FONTS%2520UPLOAD%2520FOR%2520WWW/All/Neue%2520Haas%2520Grotesk%2520Display%2520Pro%25206.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "unifrakturmaguntia";
+  font-style: normal;
+  font-weight: 400;
+  src: url("https://static.parastorage.com/tag-bundler/api/v1/fonts-cache/googlefont/woff2/s/unifrakturmaguntia/v20/WWXPlieVYwiGNomYU-ciRLRvEmK7oaVemGZMFABK1Q.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "unifrakturmaguntia";
+  font-style: italic;
+  font-weight: 400;
+  src: url("https://static.parastorage.com/tag-bundler/api/v1/fonts-cache/googlefont/woff2/s/unifrakturmaguntia/v20/WWXPlieVYwiGNomYU-ciRLRvEmK7oaVemGZMFABK1Q.woff2") format("woff2");
   font-display: swap;
 }
 

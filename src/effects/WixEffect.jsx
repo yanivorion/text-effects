@@ -1,18 +1,27 @@
 import { retroStyleExtras } from '../utils/retroShadow.js';
+import { FIT_SCALE_VAR } from '../utils/fitEffectToFrame.js';
+import { applyPresetOverrides } from '../utils/presetOverrides.js';
 import { presets } from './wix-presets.js';
 import './wix-effects.css';
 
-function fontStyle(preset) {
-  return {
-    fontFamily: preset.fontFamily,
-    fontSize: `${preset.fontSize}px`,
+function glassFontFamily(family) {
+  if (family === 'ogg') return 'ogg, serif';
+  if (family === 'unifrakturmaguntia') return 'unifrakturmaguntia, fantasy';
+  return family;
+}
+
+function fontStyle(preset, { glass = false } = {}) {
+  const style = {
+    fontFamily: glass ? glassFontFamily(preset.fontFamily) : preset.fontFamily,
+    fontSize: `calc(${preset.fontSize}px * var(${FIT_SCALE_VAR}, 1))`,
     fontStyle: preset.fontStyle,
     fontWeight: preset.fontWeight,
     textTransform: preset.textTransform,
-    letterSpacing: '0em',
-    lineHeight: 1.2,
+    letterSpacing: preset.letterSpacing ?? '0em',
+    lineHeight: preset.lineHeight ?? '1.2em',
     ...preset.vars,
   };
+  return style;
 }
 
 function OutlineOut({ text, preset }) {
@@ -38,12 +47,15 @@ function NeonSign({ text, preset }) {
 }
 
 function Glass({ text, preset }) {
+  const stroke = preset.vars['--stroke'] || preset.vars['--border-color'];
+  const strokeWidth = preset.vars['--stroke-width'] || `${preset.vars['--border-width'] || 10}px`;
+  const borderWidth = preset.vars['--border-width'] || String(parseFloat(strokeWidth) || 10);
   const style = {
-    ...fontStyle(preset),
-    '--stroke': preset.vars['--stroke'] || preset.vars['--border-color'],
-    '--stroke-width': preset.vars['--stroke-width'] || `${preset.vars['--border-width'] || 10}px`,
-    '--border-color': preset.vars['--border-color'] || preset.vars['--stroke'],
-    '--border-width': preset.vars['--border-width'] || '10',
+    ...fontStyle(preset, { glass: true }),
+    '--stroke': stroke,
+    '--stroke-width': strokeWidth,
+    '--border-color': stroke,
+    '--border-width': borderWidth,
   };
   const rootStyle = {
     '--shadow-blur': preset.vars['--shadow-blur'] || 'url(#glass-shadow_blur:2)',
@@ -205,8 +217,9 @@ const RENDERERS = {
 
 const ITALIC_SKEW_TYPES = new Set(['outline-out']);
 
-export function WixEffect({ presetId, text }) {
-  const preset = presets.find((p) => p.id === presetId);
+export function WixEffect({ presetId, text, overrides }) {
+  const base = presets.find((p) => p.id === presetId);
+  const preset = applyPresetOverrides(base, overrides);
   if (!preset) return null;
   const Renderer = RENDERERS[preset.type];
   const displayText = text ?? preset.defaultText;
@@ -221,9 +234,9 @@ export const effects = presets.map((p) => ({
   name: p.name,
   defaultText: p.defaultText || p.panelText,
   panelText: p.panelText || p.defaultText,
-  Component: ({ text, idPrefix }) => (
+  Component: ({ text, idPrefix, overrides }) => (
     <div data-effect-id={idPrefix || p.id}>
-      <WixEffect presetId={p.id} text={text} />
+      <WixEffect presetId={p.id} text={text} overrides={overrides} />
     </div>
   ),
 }));

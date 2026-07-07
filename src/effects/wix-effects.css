@@ -92,12 +92,16 @@
   display: inline-block;
   filter: var(--shadow-blur, none) drop-shadow(0 0 0 var(--shadow-color, transparent));
   -webkit-font-smoothing: antialiased;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.2em;
 }
 
 .wfx-glass-unit {
   --unit-size: 0.005em;
   --shadow-blur-unit-size: 0.6em;
   --scaled-border: calc(var(--border-width) * var(--unit-size));
+  --border-color: var(--stroke);
   --color1: var(--text-color);
   --color2: var(--border-color);
   display: inline-grid;
@@ -108,10 +112,10 @@
   color: var(--text-color);
   lighting-color: #ccc;
   -webkit-font-smoothing: antialiased;
-  text-shadow:
-    0 0 0.7px currentColor,
-    0 0 1.1px currentColor,
-    0 0 1.1px currentColor;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.2em;
+  text-shadow: 0 0 0.7px, 0 0 1.1px, 0 0 1.1px;
 }
 
 .wfx-glass-unit .wfx-glass-text,
@@ -127,6 +131,7 @@
   content: attr(data-text) / '';
   lighting-color: #ccc;
   pointer-events: none;
+  text-shadow: 0 0 0.7px, 0 0 1.1px, 0 0 1.1px;
 }
 
 .wfx-glass-unit::before {
@@ -138,6 +143,7 @@
 .wfx-glass-unit::after {
   color: var(--color1);
   filter: url(#lightA3);
+  lighting-color: #ccc;
 }
 
 .wfx-glass-unit .wfx-glass-text {

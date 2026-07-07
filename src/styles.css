@@ -24,6 +24,21 @@ body {
   height: 100%;
 }
 
+.app-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app--tuning .app-body {
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.app--tuning .grid {
+  border-right: 1px solid var(--border);
+}
+
 .toolbar {
   display: flex;
   gap: 12px;
@@ -136,6 +151,7 @@ body {
   top: 50%;
   transform: translate(-50%, -50%);
   transform-origin: center center;
+  --wfx-fit-scale: 1;
 }
 
 .card-canvas [data-effect-id] {
@@ -167,4 +183,151 @@ body {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: lowercase;
+  letter-spacing: 0.04em;
+}
+
+.card--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.btn--active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #eff6ff;
+}
+
+/* ── Effect tuner panel ── */
+.tuner-panel {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  background: var(--panel);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tuner-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tuner-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.tuner-title {
+  margin: 4px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.tuner-meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tuner-close {
+  min-width: 36px;
+  justify-content: center;
+}
+
+.tuner-preview {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  background:
+    linear-gradient(45deg, #f3f4f6 25%, transparent 25%) 0 0/16px 16px,
+    linear-gradient(-45deg, #f3f4f6 25%, transparent 25%) 0 8px/16px 16px,
+    #fff;
+}
+
+.tuner-body {
+  overflow: auto;
+  padding: 12px 16px 20px;
+  min-height: 0;
+}
+
+.tuner-section + .tuner-section {
+  margin-top: 20px;
+}
+
+.tuner-section-title {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.tuner-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tuner-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tuner-input {
+  width: 100%;
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+}
+
+.tuner-input--narrow {
+  width: 72px;
+  margin-top: 6px;
+}
+
+.tuner-color-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.tuner-color-row input[type="color"] {
+  width: 44px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+}
+
+.tuner-range {
+  width: 100%;
+}
+
+.tuner-footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
 }

@@ -6,12 +6,15 @@ import { exportAllAsZip } from './utils/exportZip.js';
 import { isPresetAnimated } from './utils/effectAnimation.js';
 import { PreviewFit } from './components/PreviewFit.jsx';
 import { ExportFrame } from './components/ExportFrame.jsx';
+import { EffectTuner } from './components/EffectTuner.jsx';
 import { SCALE_OPTIONS } from './constants/frame.js';
 
 export default function App() {
   const [text, setText] = useState('');
   const [scale, setScale] = useState(4);
   const [busy, setBusy] = useState(false);
+  const [tuneId, setTuneId] = useState(null);
+  const [overridesById, setOverridesById] = useState({});
   const rootRef = useRef(null);
 
   const findExportNode = (id) =>
@@ -19,6 +22,21 @@ export default function App() {
 
   const displayText = (effect) =>
     text.trim() || effect.panelText || effect.defaultText || effect.name;
+
+  const setOverride = useCallback((presetId, key, value) => {
+    setOverridesById((prev) => ({
+      ...prev,
+      [presetId]: { ...(prev[presetId] || {}), [key]: value },
+    }));
+  }, []);
+
+  const resetOverrides = useCallback((presetId) => {
+    setOverridesById((prev) => {
+      const next = { ...prev };
+      delete next[presetId];
+      return next;
+    });
+  }, []);
 
   const downloadOne = useCallback(async (effect, format = 'png') => {
     const el = findExportNode(effect.id);
@@ -50,8 +68,10 @@ export default function App() {
     }
   }, [scale, text]);
 
+  const tunedEffect = tuneId ? effects.find((e) => e.id === tuneId) : null;
+
   return (
-    <div className="app" ref={rootRef}>
+    <div className={`app${tuneId ? ' app--tuning' : ''}`} ref={rootRef}>
       <header className="toolbar">
         <input
           type="text"
@@ -73,36 +93,64 @@ export default function App() {
         </button>
       </header>
 
-      <main className="grid">
-        {effects.map((effect) => {
-          const Comp = effect.Component;
-          const label = displayText(effect);
-          return (
-            <div className="card" key={effect.id}>
-              <div className="card-canvas">
-                <PreviewFit>
-                  <ExportFrame>
-                    <Comp text={label} idPrefix={effect.id} />
-                  </ExportFrame>
-                </PreviewFit>
-              </div>
-              <div className="card-footer">
-                <div className="card-title">{effect.name}</div>
-                <div className="card-actions">
-                  <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'png')}>
-                    PNG
-                  </button>
-                  {isPresetAnimated(effect.id) && (
-                    <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'gif')}>
-                      GIF
+      <div className="app-body">
+        <main className="grid">
+          {effects.map((effect) => {
+            const Comp = effect.Component;
+            const label = displayText(effect);
+            const overrides = overridesById[effect.id];
+            const isTuned = Boolean(overrides && Object.keys(overrides).length);
+            return (
+              <div
+                className={`card${tuneId === effect.id ? ' card--active' : ''}`}
+                key={effect.id}
+              >
+                <div className="card-canvas">
+                  <PreviewFit>
+                    <ExportFrame>
+                      <Comp text={label} idPrefix={effect.id} overrides={overrides} />
+                    </ExportFrame>
+                  </PreviewFit>
+                </div>
+                <div className="card-footer">
+                  <div className="card-title">
+                    {effect.name}
+                    {isTuned && <span className="card-badge">tuned</span>}
+                  </div>
+                  <div className="card-actions">
+                    <button
+                      type="button"
+                      className={`btn${tuneId === effect.id ? ' btn--active' : ''}`}
+                      onClick={() => setTuneId(effect.id)}
+                    >
+                      Tune
                     </button>
-                  )}
+                    <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'png')}>
+                      PNG
+                    </button>
+                    {isPresetAnimated(effect.id) && (
+                      <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'gif')}>
+                        GIF
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </main>
+            );
+          })}
+        </main>
+
+        {tunedEffect && (
+          <EffectTuner
+            presetId={tunedEffect.id}
+            text={displayText(tunedEffect)}
+            overrides={overridesById[tunedEffect.id]}
+            onChangeOverride={(key, value) => setOverride(tunedEffect.id, key, value)}
+            onReset={() => resetOverrides(tunedEffect.id)}
+            onClose={() => setTuneId(null)}
+          />
+        )}
+      </div>
     </div>
   );
 }
