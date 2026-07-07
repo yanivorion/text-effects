@@ -130,8 +130,9 @@ export default function App() {
           {effects.map((effect) => {
             const Comp = effect.Component;
             const label = displayText(effect);
-            const overrides = resolveEffectiveOverrides(effect.id, overridesById, globalMotion);
-            const isTuned = Boolean(overridesById[effect.id] && Object.keys(overridesById[effect.id]).length);
+            const manualOverrides = overridesById[effect.id];
+            const exportOverrides = resolveEffectiveOverrides(effect.id, overridesById, globalMotion);
+            const isTuned = Boolean(manualOverrides && Object.keys(manualOverrides).length);
             return (
               <div
                 className={`card${tuneId === effect.id ? ' card--active' : ''}`}
@@ -140,7 +141,7 @@ export default function App() {
                 <div className="card-canvas">
                   <PreviewFit>
                     <ExportFrame>
-                      <Comp text={label} idPrefix={effect.id} overrides={overrides} />
+                      <Comp text={label} idPrefix={effect.id} overrides={manualOverrides} />
                     </ExportFrame>
                   </PreviewFit>
                 </div>
@@ -160,7 +161,7 @@ export default function App() {
                     <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'png')}>
                       PNG
                     </button>
-                    {isPresetAnimated(effect.id, overrides, globalMotion) && (
+                    {isPresetAnimated(effect.id, exportOverrides, globalMotion) && (
                       <button className="btn" disabled={busy} onClick={() => downloadOne(effect, 'gif')}>
                         GIF
                       </button>

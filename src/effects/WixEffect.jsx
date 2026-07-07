@@ -1,5 +1,4 @@
 import { retroStyleExtras } from '../utils/retroShadow.js';
-import { applyAnimationStyle } from '../utils/animationControl.js';
 import { FIT_SCALE_VAR } from '../utils/fitEffectToFrame.js';
 import { applyPresetOverrides } from '../utils/presetOverrides.js';
 import { presets } from './wix-presets.js';
@@ -12,17 +11,16 @@ function glassFontFamily(family) {
 }
 
 function fontStyle(preset, { glass = false } = {}) {
-  const style = {
+  return {
     fontFamily: glass ? glassFontFamily(preset.fontFamily) : preset.fontFamily,
     fontSize: `calc(${preset.fontSize}px * var(${FIT_SCALE_VAR}, 1))`,
     fontStyle: preset.fontStyle,
     fontWeight: preset.fontWeight,
     textTransform: preset.textTransform,
-    letterSpacing: preset.letterSpacing ?? '0em',
-    lineHeight: preset.lineHeight ?? '1.2em',
+    letterSpacing: '0em',
+    lineHeight: '1.2em',
     ...preset.vars,
   };
-  return style;
 }
 
 function OutlineOut({ text, preset }) {
@@ -128,7 +126,9 @@ function Striped({ text, preset }) {
     ...fontStyle(preset),
     '--stripe-size': stripePx,
   };
-  applyAnimationStyle(style);
+  if (style['--disable-inner-animation'] !== 'none') {
+    delete style['--disable-inner-animation'];
+  }
   return (
     <div className="wfx">
       <span className="wfx-striped" style={style}>{text}</span>
@@ -138,11 +138,17 @@ function Striped({ text, preset }) {
 
 function Retro({ text, preset }) {
   const layerCount = Number(preset.vars['--layer-count'] || 4);
+  const disableAnim = preset.vars['--disable-inner-animation'];
   const style = {
     ...fontStyle(preset),
     ...retroStyleExtras(preset),
   };
-  const animDisabled = applyAnimationStyle(style);
+  if (disableAnim === 'initial') {
+    style['--disable-inner-animation'] = 'initial';
+  } else if (disableAnim !== 'none') {
+    delete style['--disable-inner-animation'];
+  }
+  const animDisabled = disableAnim === 'initial' || disableAnim === 'none';
   const animClass =
     !animDisabled && layerCount >= 3 ? `wfx-retro--anim-${Math.min(layerCount, 5)}` : '';
   return (
@@ -212,8 +218,10 @@ const ITALIC_SKEW_TYPES = new Set(['outline-out']);
 
 export function WixEffect({ presetId, text, overrides }) {
   const base = presets.find((p) => p.id === presetId);
-  const preset = applyPresetOverrides(base, overrides);
-  if (!preset) return null;
+  if (!base) return null;
+  const preset = overrides && Object.keys(overrides).length > 0
+    ? applyPresetOverrides(base, overrides)
+    : base;
   const Renderer = RENDERERS[preset.type];
   const displayText = text ?? preset.defaultText;
   const content = <Renderer text={displayText} preset={preset} />;
