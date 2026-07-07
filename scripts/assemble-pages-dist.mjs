@@ -102,6 +102,7 @@ async function main() {
   const headSha = git('rev-parse HEAD');
   const shortSha = git('rev-parse --short HEAD');
   const label = git('log -1 --pretty=%s');
+  const originalRef = headSha;
   const seed = readJson(path.join(ROOT, 'versions/manifest.json'), { versions: [] });
   const live = await fetchLiveManifest();
   const merged = mergeManifest(seed, live);
@@ -112,9 +113,27 @@ async function main() {
   fs.mkdirSync(versionsDir, { recursive: true });
 
   for (const entry of merged.versions) {
-  if (entry.shortSha === shortSha) continue;
+    if (entry.shortSha === shortSha) continue;
     await preserveLiveArchive(versionsDir, entry);
   }
+
+  for (const entry of merged.versions) {
+    if (entry.shortSha === shortSha) continue;
+    const dest = path.join(versionsDir, entry.shortSha);
+    if (fs.existsSync(path.join(dest, 'index.html'))) continue;
+    console.log(`[pages] backfill archive ${entry.shortSha}`);
+    try {
+      run(`git checkout --force ${entry.sha}`);
+      run('npm ci');
+      await buildArchive(entry.shortSha, dest);
+    } catch (err) {
+      console.warn(`[pages] skip ${entry.shortSha}:`, err?.message || err);
+      fs.rmSync(dest, { recursive: true, force: true });
+    }
+  }
+
+  run(`git checkout --force ${originalRef}`);
+  run('npm ci');
 
   fs.rmSync(path.join(ROOT, 'dist'), { recursive: true, force: true });
   run('npm run build');
