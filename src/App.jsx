@@ -26,6 +26,7 @@ export default function App() {
   const [tuneId, setTuneId] = useState(null);
   const [overridesById, setOverridesById] = useState({});
   const [globalMotion, setGlobalMotion] = useState('preset');
+  const [previewBg, setPreviewBg] = useState('transparent');
   const rootRef = useRef(null);
 
   const findExportNode = (id) =>
@@ -94,7 +95,10 @@ export default function App() {
   const tunedEffect = tuneId ? effects.find((e) => e.id === tuneId) : null;
 
   return (
-    <div className={`app${tuneId ? ' app--tuning' : ''}`} ref={rootRef}>
+    <div
+      className={`app${tuneId ? ' app--tuning' : ''}${previewBg === 'white' ? ' app--preview-white' : ''}`}
+      ref={rootRef}
+    >
       <header className="toolbar">
         <input
           type="text"
@@ -119,6 +123,14 @@ export default function App() {
           </select>
         </label>
         <CommitSwitcher />
+        <button
+          type="button"
+          className={`btn${previewBg === 'white' ? ' btn--active' : ''}`}
+          onClick={() => setPreviewBg((bg) => (bg === 'white' ? 'transparent' : 'white'))}
+          title={previewBg === 'white' ? 'Show transparent checkerboard' : 'Show white background'}
+        >
+          {previewBg === 'white' ? 'Transparent' : 'White bg'}
+        </button>
         <div className="spacer" />
         <button className="btn primary" onClick={downloadAll} disabled={busy}>
           {busy ? 'Exporting…' : 'Download All (ZIP)'}

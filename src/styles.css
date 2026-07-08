@@ -168,6 +168,11 @@ body {
   overflow: visible;
 }
 
+.app--preview-white .card-canvas,
+.app--preview-white .tuner-preview {
+  background: #fff;
+}
+
 .card-preview-outer {
   width: 100%;
   aspect-ratio: 146.66 / 60;
